@@ -132,7 +132,10 @@ else if ($test_automation > 0) {$script_content = file_get_contents($script . '.
 $script_content = str_replace("test.","// test.",$script_content); file_put_contents($script . '.js',$script_content);}
 
 function current_line() {return "[LINE " . $GLOBALS['line_number'] . "]";}
-function parse_intent($script_line) {$GLOBALS['line_number']++;
+
+
+function parse_intent($script_line) {
+  $GLOBALS['line_number']++;
 $script_line = trim($script_line); if ($script_line=="") return "";
 
 // check existence of objects or keywords by searching for `object or keyword name`, then expand from repository
@@ -146,37 +149,42 @@ for ($repo_check = 1; $repo_check <= $GLOBALS['repo_count']; $repo_check++) $scr
 str_replace("`".$GLOBALS['repo_data'][$repo_check][0]."`",$GLOBALS['repo_data'][$repo_check][$data_set],$script_line);
 if (strpos($script_line,'`')!==false) echo "ERROR - ".current_line()." no repository data for ".$script_line."\n";}}
 
-// trim and check again after replacing definitions from repository
-$script_line = trim($script_line); if ($script_line=="") return "";
+  // trim and check again after replacing definitions from repository
+  $script_line = trim($script_line);
+  if ($script_line=="") {
+    return "";
+  }
 
-// check intent of step for interpretation into casperjs code
-switch (get_intent($script_line)) {
-case "url": return url_intent($script_line); break;
-case "tap": return tap_intent($script_line); break;
-case "hover": return hover_intent($script_line); break;
-case "type": return type_intent($script_line); break;
-case "select": return select_intent($script_line); break;
-case "read": return read_intent($script_line); break;
-case "show": return show_intent($script_line); break;
-case "upload": return upload_intent($script_line); break;
-case "down": return down_intent($script_line); break;
-case "receive": return receive_intent($script_line); break;
-case "echo": return echo_intent($script_line); break;
-case "save": return save_intent($script_line); break;
-case "dump": return dump_intent($script_line); break;
-case "snap": return snap_intent($script_line); break;
-case "wait": return wait_intent($script_line); break;
-case "live": return live_intent($script_line); break;
-case "check": return check_intent($script_line); break;
-case "test": return test_intent($script_line); break;
-case "frame": return frame_intent($script_line); break;
-case "popup": return popup_intent($script_line); break;
-case "api": return api_intent($script_line); break;
-case "dom": return dom_intent($script_line); break;
-case "js": return js_intent($script_line); break;
-case "timeout": return timeout_intent($script_line); break;
-case "code": return code_intent($script_line); break;
-default: echo "ERROR - " . current_line() . " cannot understand step " . $script_line . "\n";}}
+  // check intent of step for interpretation into casperjs code
+  switch (get_intent($script_line)) {
+    case "url": return url_intent($script_line); break;
+    case "tap": return tap_intent($script_line); break;
+    case "hover": return hover_intent($script_line); break;
+    case "type": return type_intent($script_line); break;
+    case "select": return select_intent($script_line); break;
+    case "read": return read_intent($script_line); break;
+    case "show": return show_intent($script_line); break;
+    case "upload": return upload_intent($script_line); break;
+    case "down": return down_intent($script_line); break;
+    case "receive": return receive_intent($script_line); break;
+    case "echo": return echo_intent($script_line); break;
+    case "save": return save_intent($script_line); break;
+    case "dump": return dump_intent($script_line); break;
+    case "snap": return snap_intent($script_line); break;
+    case "wait": return wait_intent($script_line); break;
+    case "live": return live_intent($script_line); break;
+    case "check": return check_intent($script_line); break;
+    case "test": return test_intent($script_line); break;
+    case "frame": return frame_intent($script_line); break;
+    case "popup": return popup_intent($script_line); break;
+    case "api": return api_intent($script_line); break;
+    case "dom": return dom_intent($script_line); break;
+    case "js": return js_intent($script_line); break;
+    case "timeout": return timeout_intent($script_line); break;
+    case "code": return code_intent($script_line); break;
+    default: echo "ERROR - " . current_line() . " cannot understand step " . $script_line . "\n";
+  }
+}
 
 function get_intent($raw_intent) {$lc_raw_intent = strtolower($raw_intent); 
 if ((substr($lc_raw_intent,0,7)=="http://") or (substr($lc_raw_intent,0,8)=="https://")) return "url";
