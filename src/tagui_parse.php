@@ -49,7 +49,7 @@ while(!feof($header_file)) {fwrite($output_file,fgets($header_file));} fclose($h
 fwrite($output_file,"var flow_path = '" . str_replace("\\","/",dirname($script)) . "';\n\n");
 
 // main loop to parse intents in flow file for conversion into javascript code
-while(!feof($input_file)) {fwrite($output_file,parse_intent(fgets($input_file)));} fclose($input_file);
+while(!feof($input_file)) {fwrite($output_file,parse_intent(fgets($input_file), $tagui));} fclose($input_file);
 
 // create footer of casperjs script using footer template and do post-processing 
 while(!feof($footer_file)) {fwrite($output_file,fgets($footer_file));} fclose($footer_file); fclose($output_file);
@@ -138,7 +138,7 @@ function current_line() {
   return "[LINE " . $GLOBALS['line_number'] . "]";
 }
 
-function parse_intent($script_line) {
+function parse_intent($script_line, $tagui) {
   $GLOBALS['line_number']++;
   $script_line = trim($script_line);
   
@@ -176,93 +176,18 @@ function parse_intent($script_line) {
   if ($script_line=="") {
     return "";
   }
-
-  // check intent of step for interpretation into casperjs code
-  switch (get_intent($script_line)) {
-    case "url": return url_intent($script_line); break;
-    case "tap": return tap_intent($script_line); break;
-    case "hover": return hover_intent($script_line); break;
-    case "type": return type_intent($script_line); break;
-    case "select": return select_intent($script_line); break;
-    case "read": return read_intent($script_line); break;
-    case "show": return show_intent($script_line); break;
-    case "upload": return upload_intent($script_line); break;
-    case "down": return down_intent($script_line); break;
-    case "receive": return receive_intent($script_line); break;
-    case "echo": return echo_intent($script_line); break;
-    case "save": return save_intent($script_line); break;
-    case "dump": return dump_intent($script_line); break;
-    case "snap": return snap_intent($script_line); break;
-    case "wait": return wait_intent($script_line); break;
-    case "live": return live_intent($script_line); break;
-    case "check": return check_intent($script_line); break;
-    case "test": return test_intent($script_line); break;
-    case "frame": return frame_intent($script_line); break;
-    case "popup": return popup_intent($script_line); break;
-    case "api": return api_intent($script_line); break;
-    case "dom": return dom_intent($script_line); break;
-    case "js": return js_intent($script_line); break;
-    case "timeout": return timeout_intent($script_line); break;
-    case "code": return code_intent($script_line); break;
-    default: echo "ERROR - " . current_line() . " cannot understand step " . $script_line . "\n";
+  
+    // check intent of step for interpretation into casperjs code
+  if ($intent = $tagui->getIntent($script_line)) {
+    return $tagui->parseIntent($intent, $script_line);
   }
+  else {
+    echo "ERROR - " . current_line() . " cannot understand step " . $script_line . "\n";
+  }
+  
 }
 
-function get_intent($raw_intent) {$lc_raw_intent = strtolower($raw_intent); 
-if ((substr($lc_raw_intent,0,7)=="http://") or (substr($lc_raw_intent,0,8)=="https://")) return "url";
 
-// first set of conditions check for valid keywords with their parameters
-if ((substr($lc_raw_intent,0,4)=="tap ") or (substr($lc_raw_intent,0,6)=="click ")) return "tap"; 
-if ((substr($lc_raw_intent,0,6)=="hover ")or(substr($lc_raw_intent,0,5)=="move ")) return "hover";
-if ((substr($lc_raw_intent,0,5)=="type ") or (substr($lc_raw_intent,0,6)=="enter ")) return "type";
-if ((substr($lc_raw_intent,0,7)=="select ") or (substr($lc_raw_intent,0,7)=="choose ")) return "select";
-if ((substr($lc_raw_intent,0,5)=="read ") or (substr($lc_raw_intent,0,6)=="fetch ")) return "read";
-if ((substr($lc_raw_intent,0,5)=="show ") or (substr($lc_raw_intent,0,6)=="print ")) return "show";
-if ((substr($lc_raw_intent,0,3)=="up ") or (substr($lc_raw_intent,0,7)=="upload ")) return "upload";
-if ((substr($lc_raw_intent,0,5)=="down ") or (substr($lc_raw_intent,0,9)=="download ")) return "down";
-if (substr($lc_raw_intent,0,8)=="receive ") return "receive";
-if (substr($lc_raw_intent,0,5)=="echo ") return "echo";
-if (substr($lc_raw_intent,0,5)=="save ") return "save";
-if (substr($lc_raw_intent,0,5)=="dump ") return "dump";
-if (substr($lc_raw_intent,0,5)=="snap ") return "snap";
-if (substr($lc_raw_intent,0,5)=="wait ") return "wait";
-if (substr($lc_raw_intent,0,5)=="live ") return "live";
-if (substr($lc_raw_intent,0,6)=="check ") return "check";
-if (substr($lc_raw_intent,0,5)=="test ") return "test";
-if (substr($lc_raw_intent,0,6)=="frame ") return "frame";
-if (substr($lc_raw_intent,0,6)=="popup ") return "popup";
-if (substr($lc_raw_intent,0,4)=="api ") return "api";
-if (substr($lc_raw_intent,0,4)=="dom ") return "dom";
-if (substr($lc_raw_intent,0,3)=="js ") return "js";
-if (substr($lc_raw_intent,0,8)=="timeout ") return "timeout";
-
-// second set of conditions check for valid keywords with missing parameters
-if (($lc_raw_intent=="tap") or ($lc_raw_intent=="click")) return "tap";
-if (($lc_raw_intent=="hover") or ($lc_raw_intent=="move")) return "hover";
-if (($lc_raw_intent=="type") or ($lc_raw_intent=="enter")) return "type";
-if (($lc_raw_intent=="select") or ($lc_raw_intent=="choose")) return "select";
-if (($lc_raw_intent=="read") or ($lc_raw_intent=="fetch")) return "read";
-if (($lc_raw_intent=="show") or ($lc_raw_intent=="print")) return "show";
-if (($lc_raw_intent=="up") or ($lc_raw_intent=="upload")) return "upload";
-if (($lc_raw_intent=="down") or ($lc_raw_intent=="download")) return "down";
-if ($lc_raw_intent=="receive") return "receive";
-if ($lc_raw_intent=="echo") return "echo";
-if ($lc_raw_intent=="save") return "save";
-if ($lc_raw_intent=="dump") return "dump";
-if ($lc_raw_intent=="snap") return "snap";
-if ($lc_raw_intent=="wait") return "wait";
-if ($lc_raw_intent=="live") return "live";
-if ($lc_raw_intent=="check") return "check";
-if ($lc_raw_intent=="test") return "test";
-if ($lc_raw_intent=="frame") return "frame";
-if ($lc_raw_intent=="popup") return "popup";
-if ($lc_raw_intent=="api") return "api";
-if ($lc_raw_intent=="dom") return "dom";
-if ($lc_raw_intent=="js") return "js";
-if ($lc_raw_intent=="timeout") return "timeout";
-
-// final check for recognized code before returning error 
-if (is_code($raw_intent)) return "code"; else return "error";}
 
 function is_code($raw_intent) {
 // due to asynchronous waiting for element, if/for/while can work for parsing single step
@@ -340,7 +265,8 @@ return "{techo('".$input_intent."'); var fs = require('fs');\n" .
 end_fi()."});\n\ncasper.then(function() {\n";}
 
 // set of functions to interpret steps into corresponding casperjs code
-function url_intent($raw_intent) {$twb = $GLOBALS['tagui_web_browser']; $casper_url = $raw_intent; $chrome_call = '';
+function url_intent($raw_intent) {
+$twb = $GLOBALS['tagui_web_browser']; $casper_url = $raw_intent; $chrome_call = '';
 if ($twb == 'chrome')
 {$casper_url = 'about:blank'; $chrome_call = "chrome_step('Page.navigate',{url: '".$raw_intent."'}); sleep(1000);\n";}
 if (strpos($raw_intent,"'+")!==false and strpos($raw_intent,"+'")!==false) // check if dynamic url is used
