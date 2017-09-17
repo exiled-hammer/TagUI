@@ -2,6 +2,9 @@
 
 /* PARSER SCRIPT FOR TAGUI FRAMEWORK ~ TEBEL.ORG */
 
+include_once('tagui.class.inc');
+$tagui = new tagui('casperjs');
+
 // check flow filename for .gui or .txt or no extension
 $script = $argv[1]; if ($script=="") die("ERROR - specify flow filename as first parameter\n");
 if (strpos(pathinfo($script, PATHINFO_BASENAME), '.') !== false) // check if file has extension
