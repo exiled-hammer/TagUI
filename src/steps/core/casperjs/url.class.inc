@@ -12,7 +12,7 @@
  */
 
 class url extends step {
-  public $intent;
+  
   /**
    * Construct wrapper object   
    */

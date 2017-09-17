@@ -17,7 +17,7 @@
  */
 
 abstract class step {
-  
+  public $intent;
   /**
    * @return string
    */
