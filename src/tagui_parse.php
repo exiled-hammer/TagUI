@@ -131,23 +131,42 @@ file_put_contents($script . '.js',$script_content);} // save script after restru
 else if ($test_automation > 0) {$script_content = file_get_contents($script . '.js'); // read generated script
 $script_content = str_replace("test.","// test.",$script_content); file_put_contents($script . '.js',$script_content);}
 
-function current_line() {return "[LINE " . $GLOBALS['line_number'] . "]";}
-
+function current_line() {
+  return "[LINE " . $GLOBALS['line_number'] . "]";
+}
 
 function parse_intent($script_line) {
   $GLOBALS['line_number']++;
-$script_line = trim($script_line); if ($script_line=="") return "";
+  $script_line = trim($script_line);
+  
+  if ($script_line=="") {
+    return "";
+  }
 
-// check existence of objects or keywords by searching for `object or keyword name`, then expand from repository
-if ((substr_count($script_line,'`') > 1) and (!(substr_count($script_line,'`') & 1))) { // check for even number of `
-if ($GLOBALS['repo_count'] == 0) echo "ERROR - ".current_line()." no repository data for ".$script_line."\n";
-// loop through repository data to search and replace definitions, do it twice to handle objects within keywords
-else {if (getenv('tagui_data_set')!==false) $data_set = intval(getenv('tagui_data_set')); else $data_set = 1;
-for ($repo_check = 1; $repo_check <= $GLOBALS['repo_count']; $repo_check++) $script_line = 
-str_replace("`".$GLOBALS['repo_data'][$repo_check][0]."`",$GLOBALS['repo_data'][$repo_check][$data_set],$script_line);
-for ($repo_check = 1; $repo_check <= $GLOBALS['repo_count']; $repo_check++) $script_line =
-str_replace("`".$GLOBALS['repo_data'][$repo_check][0]."`",$GLOBALS['repo_data'][$repo_check][$data_set],$script_line);
-if (strpos($script_line,'`')!==false) echo "ERROR - ".current_line()." no repository data for ".$script_line."\n";}}
+  // check existence of objects or keywords by searching for `object or keyword name`, then expand from repository
+  if ((substr_count($script_line,'`') > 1) and (!(substr_count($script_line,'`') & 1))) { // check for even number of `
+    if ($GLOBALS['repo_count'] == 0) {
+      echo "ERROR - ".current_line()." no repository data for ".$script_line."\n";
+    }
+    // loop through repository data to search and replace definitions, do it twice to handle objects within keywords
+    else {
+      if (getenv('tagui_data_set')!==false) {
+        $data_set = intval(getenv('tagui_data_set'));
+      }
+      else {
+        $data_set = 1;
+      }
+      for ($repo_check = 1; $repo_check <= $GLOBALS['repo_count']; $repo_check++) {
+        $script_line = str_replace("`".$GLOBALS['repo_data'][$repo_check][0]."`",$GLOBALS['repo_data'][$repo_check][$data_set],$script_line);
+        for ($repo_check = 1; $repo_check <= $GLOBALS['repo_count']; $repo_check++) {
+          $script_line = str_replace("`".$GLOBALS['repo_data'][$repo_check][0]."`",$GLOBALS['repo_data'][$repo_check][$data_set],$script_line);
+          if (strpos($script_line,'`')!==false) {
+            echo "ERROR - ".current_line()." no repository data for ".$script_line."\n";
+          }
+        }
+      }
+    }
+  }
 
   // trim and check again after replacing definitions from repository
   $script_line = trim($script_line);
@@ -331,7 +350,8 @@ if ($GLOBALS['line_number'] == 1) { // use casper.start for first URL call and c
 $GLOBALS['url_provided']=true; return $dynamic_header."casper.start('".$casper_url."', function() {\n".$chrome_call.
 "techo('".$raw_intent."' + ' - ' + ".$twb.".getTitle() + '\\n');});\n\ncasper.then(function() {\n".$dynamic_footer;}
 else return $dynamic_header."});casper.thenOpen('".$casper_url."', function() {\n".$chrome_call."techo('".
-$raw_intent."' + ' - ' + ".$twb.".getTitle());});\n\ncasper.then(function() {\n".$dynamic_footer;}
+$raw_intent."' + ' - ' + ".$twb.".getTitle());});\n\ncasper.then(function() {\n".$dynamic_footer;
+}
 
 function tap_intent($raw_intent) {$twb = $GLOBALS['tagui_web_browser'];
 $params = trim(substr($raw_intent." ",1+strpos($raw_intent." "," "))); 
