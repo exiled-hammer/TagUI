@@ -17,17 +17,16 @@
  */
 
 abstract class step {
-  protected $intent;
   
   /**
    * @return string
    */
-  abstract public function get_intent();
+  abstract public function get_intent($intent);
 
   /**
    * @return casperjs code as string
    *
    */
-  abstract public function parse_intent()
+  abstract public function parse_intent($raw_intent);
     
 }
