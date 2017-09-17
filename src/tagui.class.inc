@@ -45,11 +45,12 @@ class tagui {
   
   public function getIntent($intent) {
     foreach ($this->steps as $class) {
-      if ($intent = $class->get_intent($intent)) {
+      if ($return = $class->get_intent($intent)) {
         break;
       }
     }
-    return $intent;
+
+    return $return;
   }
   
   public function parseIntent ($intent, $script_line) {
