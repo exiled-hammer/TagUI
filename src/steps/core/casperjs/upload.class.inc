@@ -44,7 +44,7 @@ class upload extends step {
    *   if input is meant for sikuli visual automation 
    *
    */
-  public function parse_intent($raw_intent, array $params, $twb, $sikuli) {     
+  public function parse_intent($raw_intent, $twb, $sikuli) {     
     // TODO: $params is passed as an array but sent to casperjs code and sikuli output as a string   
     $params = trim(substr($raw_intent." ",1+strpos($raw_intent." "," ")));
     $param1 = trim(substr($params,0,strpos($params," as "))); $param2 = trim(substr($params,4+strpos($params," as ")));
