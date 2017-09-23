@@ -24,7 +24,7 @@ class upload extends step {
    */
   public function get_intent($intent) {
 
-    if (((substr($intent)=="up ") || (substr($intent)=="upload ")) || ((substr($intent,0,3)=="up ") || (substr($intent,0,7)=="upload "))) {    
+    if (((substr($intent,0,3)=="up ") || (substr($intent,0,7)=="upload "))) {    
       return $this->intent;
     }    
     return FALSE;
